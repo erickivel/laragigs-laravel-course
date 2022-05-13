@@ -2,42 +2,25 @@
 
 namespace App\Models;
 
-class Listing
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Listing extends Model
 {
-  public static function all()
-  {
-    return [
-      [
-        'id' => 1,
-        'title' => 'Listing One',
-        'description' => 'Lorem ipsum dolor sit amet, consect'
-      ],
-      [
-        'id' => 2,
-        'title' => 'Listing Two',
-        'description' => 'Lorem ipsum dolor sit amet, consect'
-      ],
-      [
-        'id' => 3,
-        'title' => 'Listing three',
-        'description' => 'Lorem ipsum dolor sit amet, consect'
-      ],
-      [
-        'id' => 4,
-        'title' => 'Listing Four',
-        'description' => 'Lorem ipsum dolor sit amet, consect'
-      ],
-    ];
-  }
+    use HasFactory;
 
-  public static function find($id)
-  {
-    $listings = self::all();
+    // protected $fillable = ['title', 'company', 'location', 'website', 'email', 'tags', 'description'];
 
-    foreach ($listings as $listing) {
-      if ($listing['id'] == $id) {
-        return $listing;
-      }
+    public function scopeFilter($query, array $filters)
+    {
+        if ($filters['tag'] ?? false) {
+            $query->where('tags', 'like', '%' . request('tag') . '%');
+        }
+
+        if ($filters['search'] ?? false) {
+            $query->where('title', 'like', '%' . request('search') . '%')
+                ->orWhere('description', 'like', '%' . request('search') . '%')
+                ->orWhere('tags', 'like', '%' . request('search') . '%');
+        }
     }
-  }
 }
